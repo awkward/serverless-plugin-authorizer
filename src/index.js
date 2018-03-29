@@ -6,12 +6,15 @@ class Authorizer {
 
   attachAuthorization() {
     if (this.serverless.service.custom.authorization) {
+      this.serverless.cli.log('Attaching authorization');
       Object.keys(this.serverless.service.functions).forEach((key) => {
         const fn = this.serverless.service.functions[key];
-        const httpEvent = fn.events ? fn.events.find(val => val.http) : null;
-        if (!!httpEvent && httpEvent.http.authorize) {
-          httpEvent.http.authorizer = this.serverless.service.custom.authorization;
-        }
+        const httpEvents = fn.events ? fn.events.filter(val => val.http) : [];
+        httpEvents.forEach((httpEvent) => {
+          if (httpEvent.http.authorize) {
+            httpEvent.http.authorizer = this.serverless.service.custom.authorization;
+          }
+        });
       });
     }
   }
